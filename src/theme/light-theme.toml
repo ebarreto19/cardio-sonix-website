@@ -1,0 +1,9 @@
+[theme]
+primaryColor="#4bb0ff"
+backgroundColor="#ececff"
+secondaryBackgroundColor="#7489b7"
+textColor="#000000"
+
+[server]
+runOnSave = true
+# port = 80
