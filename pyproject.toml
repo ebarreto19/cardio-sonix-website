@@ -6,6 +6,9 @@ authors = ["YeaMerci <113313229+YeaMerci@users.noreply.github.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
+streamlit = "^1.25.0"
+requests = "^2.31.0"
+plotly = "^5.16.1"
 
 [tool.poetry.dev-dependencies]
 
