@@ -1,0 +1,2 @@
+include ./assets/*
+include ./src/theme/.toml
