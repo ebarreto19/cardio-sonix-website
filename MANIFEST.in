@@ -1,2 +1,6 @@
-include ./assets/*
-include ./src/theme/.toml
+recursive-include assets *
+recursive-include theme *
+recursive-include .streamlit *
+
+include requirements.txt
+include README.md
