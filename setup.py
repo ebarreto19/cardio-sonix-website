@@ -9,17 +9,19 @@ with open("README.md", "r") as f:
 
 
 setup(
-    name="dr-cardio-sonix",
+    name="cardio-sonix-streamlit",
     version="1.0.0",
     packages=find_packages(),
+    py_modules=["⭐️_Home"],
     include_package_data=True,
     install_requires=requirements,
     entry_points={
         "console_scripts": [
-            "sonix-run=⭐️_Home",
+            "sonix-run=scripts.server:main",
         ],
     },
-    author="Kotov Daniil",
+    license="GNU 3",
+    author="cardio-sonix-team",
     author_email="entertomerci@gmail.com",
     description="Dr. Cardio Sonix is a website "
                 "that gives absolutely everyone a neural network "
@@ -28,8 +30,9 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/Cardio-Sonix/cardio-sonix-website",
     classifiers=[
-        "Development Status :: 1 - Alpha",
-        "License :: GNU GENERAL PUBLIC LICENSE",
+        "Development Status :: 3 - Alpha",
+        "License :: GNU 3 GENERAL PUBLIC LICENSE 3",
+        "Operating System :: OS Independent",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
