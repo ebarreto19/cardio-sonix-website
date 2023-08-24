@@ -1,6 +1,5 @@
 from typing import Any
 import streamlit as st
-from barfi import Block, st_barfi
 import requests
 
 
@@ -25,7 +24,7 @@ st.image(f"./assets/gif/pulse-home-bar.gif")
 def theme_change():
     theme = st.session_state["theme"].lower()
     if theme != "default":
-        with open(f"./src/theme/{theme}-theme.toml", "r") as f:
+        with open(f"theme/{theme}-theme.toml", "r") as f:
             theme = f.read()
         with open("./.streamlit/config.toml", "w") as f:
             f.write(theme)
