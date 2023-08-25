@@ -1,16 +1,23 @@
-import streamlit as st
+"""Page with tutorial for audio recording and prediction"""
 
+import streamlit as st
+from app.variables import GIF_DIR, IMAGES_DIR
+
+
+# --- GENERAL SETTINGS ---
+PAGE_TITLE: str = "Tutorial"
+PAGE_ICON: str = "🧪"
 
 st.set_page_config(
-    page_title="Tutorial",
-    page_icon="🧪",
+    page_title=PAGE_TITLE,
+    page_icon=PAGE_ICON
 )
 
 
 # Step 1
 st.header("Prepare your phone - :blue[Step 1]")
 st.write("Open any audio recording software like a voice recorder on your phone.")
-st.image("./assets/gif/audio-recording.gif")
+st.image(f"{GIF_DIR}/audio-recording.gif")
 
 
 # Step 2
@@ -25,7 +32,7 @@ st.markdown(
     """
 )
 
-st.image("./assets/images/lie-down.png")
+st.image(f"{IMAGES_DIR}/lie-down.png")
 
 
 # Step 3
@@ -36,7 +43,7 @@ st.write(
     "to the area indicated in the picture by the yellow rectangle 👇"
 )
 
-st.image("./assets/images/phone-body-location.png")
+st.image(f"{IMAGES_DIR}/phone-body-location.png")
 
 st.markdown(
     """  
@@ -74,7 +81,7 @@ def rate_change():
         st.balloons()
 
 
-st.image("./assets/gif/file-loading.gif")
+st.image(f"{GIF_DIR}/file-loading.gif")
 rate = st.sidebar.selectbox(
     "Was it helpful?",
     ["It's important to us", "Helped a lot! 😃", "It was helpful 🙂", "Didn't really help 🤨", "Nothing is clear! 😡"],

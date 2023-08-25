@@ -1,8 +1,32 @@
 [tool.poetry]
-name = "cardio-sonix-website"
-version = "0.1.0"
-description = ""
-authors = ["YeaMerci <113313229+YeaMerci@users.noreply.github.com>"]
+name = "cardio-sonix-streamlit"
+version = "1.0.0"
+description = "Dr. Cardio Sonix is a website that gives absolutely everyone a neural network to monitor your heart condition."
+authors = ["YeaMerci <113313229+YeaMerci@users.noreply.github.com>", "cardio-sonix-team"]
+license = "GNU 3"
+readme = "README.md"
+homepage = "https://github.com/Cardio-Sonix/cardio-sonix-website"
+repository = "https://github.com/Cardio-Sonix/cardio-sonix-website"
+keywords = ["ai", "medicine", "cardiovascular", "website", "streamlit", "streamlit-component"]
+classifiers = [
+    "Environment :: Console",
+    "Framework :: streamlit",
+    "Development Status :: 3 - Alpha",
+    "License :: GENERAL PUBLIC LICENSE 3",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+packages = [
+    {include = "app"},
+    {include = "scripts"},
+    {include = "tests"}
+]
+include = [
+    "LICENSE", ".streamlit"
+]
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -11,7 +35,13 @@ requests = "^2.31.0"
 plotly = "^5.16.1"
 
 [tool.poetry.dev-dependencies]
+python = "^3.10"
+pytest = "^3.0"
+
+[tool.poetry.scripts]
+sonix-run = "scripts.server:main"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+

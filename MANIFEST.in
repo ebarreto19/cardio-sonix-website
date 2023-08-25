@@ -1,5 +1,5 @@
-recursive-include assets *
-recursive-include theme *
+recursive-include app/assets *
+recursive-include app/theme *
 recursive-include .streamlit *
 
 include requirements.txt

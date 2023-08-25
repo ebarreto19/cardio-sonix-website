@@ -1,11 +1,20 @@
+"""Entry point for the streamlit application"""
+
 from typing import Any
 import streamlit as st
 import requests
+from variables import IMAGES_DIR, GIF_DIR
+from variables import THEME_DIR, CONFIG_DIR
+
+
+# --- GENERAL SETTINGS ---
+PAGE_TITLE: str = "Home"
+PAGE_ICON: str = "⭐️"
 
 
 st.set_page_config(
-    page_title="Home",
-    page_icon="⭐️",
+    page_title=PAGE_TITLE,
+    page_icon=PAGE_ICON,
 )
 
 
@@ -18,15 +27,15 @@ st.write(
     as indicated in the instructions and send us 🫶🏻** 
     """
 )
-st.image(f"./assets/gif/pulse-home-bar.gif")
+st.image(f"{GIF_DIR}/pulse-home-bar.gif")
 
 
 def theme_change():
     theme = st.session_state["theme"].lower()
     if theme != "default":
-        with open(f"theme/{theme}-theme.toml", "r") as f:
+        with open(f"{THEME_DIR}/{theme}-theme.toml", "r") as f:
             theme = f.read()
-        with open("./.streamlit/config.toml", "w") as f:
+        with open(f"{CONFIG_DIR}/config.toml", "w") as f:
             f.write(theme)
 
 
@@ -43,7 +52,7 @@ col1, col2 = st.columns([0.5, 0.5], gap="large")
 
 with col1:
     st.header(":blue[Cardiovascular diseases]")
-    st.image("./assets/images/heart-attack.png")
+    st.image(f"{IMAGES_DIR}/heart-attack.png")
     st.write(
         """
         According to the World Health Organisation, 
@@ -58,7 +67,7 @@ with col1:
 
 with col2:
     st.header(":blue[Motivation]")
-    st.image("./assets/gif/slime.gif")
+    st.image(f"{GIF_DIR}/slime.gif")
     st.write(
         """
         Any method which can help to detect signs of heart disease 
@@ -72,7 +81,7 @@ with col2:
 
 
 st.header(":blue[Medicine and AI]")
-st.image("./assets/images/medicine-ai.jpeg")
+st.image(f"{IMAGES_DIR}/medicine-ai.jpeg")
 st.write(
     """
     The problem is of particular interest to machine learning researchers 
