@@ -1,12 +1,20 @@
+"""Page to make predictions and diagnostics"""
+
 from typing import Union
 import streamlit as st
 import requests
 import plotly.express as px
+from app.variables import GIF_DIR, IMAGES_DIR
+from app.variables import END_POINT_PREDICT
 
+
+# --- GENERAL SETTINGS ---
+PAGE_TITLE: str = "Diagnostics"
+PAGE_ICON: str = "🩺"
 
 st.set_page_config(
-    page_title="Diagnostics",
-    page_icon="🩺",
+    page_title=PAGE_TITLE,
+    page_icon=PAGE_ICON
 )
 
 
@@ -23,7 +31,7 @@ def load_audio() -> Union[bytes, None]:
 def get_predictions(data: bytes) -> dict:
     with st.spinner("Please wait... We examine your heart 🫀"):
         return requests.post(
-            url=" http://127.0.0.1:8000/predict",
+            url=END_POINT_PREDICT,
             files={f"audio_file": data}
         ).json()
 
@@ -57,7 +65,7 @@ def classification_report(predictions: dict) -> None:
         unsafe_allow_html=True
     )
 
-    col2.image(f"./assets/gif/status-{predictions['preds']}.gif")
+    col2.image(f"{GIF_DIR}/status-{predictions['preds']}.gif")
 
 
 def artifact_report() -> None:
@@ -75,7 +83,7 @@ def artifact_report() -> None:
         - If all else fails, try recording audio from another device
         """
     )
-    st.image("./assets/images/phone-body-location.png")
+    st.image(f"{IMAGES_DIR}/phone-body-location.png")
 
 
 def check_data(data: bytes) -> None:
@@ -95,7 +103,7 @@ def get_complaints() -> tuple[str, str]:
     return choice, complaint
 
 
-st.image("./assets/gif/circle.gif")
+st.image(f"{GIF_DIR}/circle.gif")
 data = load_audio()
 if data:
     choice, complaint = get_complaints()
