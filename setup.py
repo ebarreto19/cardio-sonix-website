@@ -22,7 +22,7 @@ setup(
 
     entry_points={
         "console_scripts": [
-            "sonix-run=scripts.server:main",
+            "sonix-run=app-scripts.server:main",
         ],
     },
 
