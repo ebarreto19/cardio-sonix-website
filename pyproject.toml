@@ -22,10 +22,10 @@ classifiers = [
 packages = [
     {include = "app"},
     {include = "scripts"},
-    {include = "tests"}
+    {include = "tests"},
 ]
 include = [
-    "LICENSE", ".streamlit"
+    "LICENSE"
 ]
 
 [tool.poetry.dependencies]
