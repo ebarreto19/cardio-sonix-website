@@ -30,10 +30,13 @@ def load_audio() -> Union[bytes, None]:
 
 def get_predictions(data: bytes) -> dict:
     with st.spinner("Please wait... We examine your heart 🫀"):
-        return requests.post(
-            url=END_POINT_PREDICT,
-            files={f"audio_file": data}
-        ).json()
+        try:
+            return requests.post(
+                url=END_POINT_PREDICT,
+                files={f"audio_file": data}
+            ).json()
+        except requests.exceptions.ConnectionError as e:
+            st.error("ConnectionError")
 
 
 def plot_predictions(predictions: dict) -> None:
@@ -88,7 +91,9 @@ def artifact_report() -> None:
 
 def check_data(data: bytes) -> None:
     predictions = get_predictions(data)
-    if predictions["preds"] == "artifact":
+    if not predictions:
+        pass
+    elif predictions["preds"] == "artifact":
         artifact_report()
     else:
         classification_report(predictions)
