@@ -2,7 +2,11 @@ from setuptools import setup, find_packages
 
 
 with open("requirements.txt") as f:
-    requirements = [line.strip() for line in f.readlines() if not line.startswith("-f")]
+    requirements = [
+        line.strip()
+        for line in f.readlines()
+        if not line.startswith("-f")
+    ]
 
 with open("README.md", "r") as f:
     long_description = f.read()
@@ -14,6 +18,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     install_requires=requirements,
+    data_files=[".streamlit/config.toml"],
 
     entry_points={
         "console_scripts": [
