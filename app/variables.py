@@ -15,9 +15,9 @@ from pathlib import Path
 
 
 # --- PATH SETTINGS ---
-ROOT_DIR: Path = Path.cwd()
+APP_DIR: Path = Path(__file__).parent if "__file__" in locals() else Path.cwd()
+ROOT_DIR: Path = APP_DIR.parent
 CONFIG_DIR: Path = ROOT_DIR / ".streamlit"
-APP_DIR: Path = ROOT_DIR / "app"
 ENTRY_POINT = APP_DIR / "⭐️_Home.py"
 ASSETS_DIR: Path = APP_DIR / "assets"
 THEME_DIR: Path = APP_DIR / "theme"
