@@ -1,12 +1,19 @@
 """Page with tutorial for audio recording and prediction"""
 
 import streamlit as st
-from app.variables import GIF_DIR, IMAGES_DIR
+from pathlib import Path
 
+
+# --- PATH SETTINGS ---
+APP_DIR: Path = Path(__file__).parent.parent if "__file__" in locals() else Path.cwd().parent
+ASSETS_DIR: Path = APP_DIR / "assets"
+GIF_DIR: Path = ASSETS_DIR / "gif"
+IMAGES_DIR: Path = ASSETS_DIR / "images"
 
 # --- GENERAL SETTINGS ---
 PAGE_TITLE: str = "Tutorial"
 PAGE_ICON: str = "🧪"
+
 
 st.set_page_config(
     page_title=PAGE_TITLE,
