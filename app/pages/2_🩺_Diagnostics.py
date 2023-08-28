@@ -22,10 +22,20 @@ API_HOST: str = "http://127.0.0.1:8000"
 END_POINT_PREDICT: str = API_HOST + "/predict"
 
 
+# Set page config
 st.set_page_config(
     page_title=PAGE_TITLE,
     page_icon=PAGE_ICON
 )
+
+# Set page session_state
+if not st.session_state.get("card", None):
+    st.session_state["card"] = {
+        "name": None,
+        "age": None,
+        "gender": None,
+        "complaint": None
+    }
 
 
 def load_audio() -> Union[bytes, None]:
@@ -68,10 +78,10 @@ def classification_report(predictions: dict) -> None:
         f"""
         <div class="alert alert-block alert-info" style="font-size:20px; background-color: #0b0e22; font-family:verdana; color: #ffffff; border-radius: 10px; border: 0px #533078 solid">
             <b>Survey card ⚕️</b>
-            <br>Name: ...<br>
-            Age: ...
-            <br>Gender: ...<br>
-            Сomplaints: ...
+            <br>Name: {st.session_state["card"].get("name", "...")}<br>
+            Age: {st.session_state["card"].get("age", "...")}
+            <br>Gender: {st.session_state["card"].get("gender", "...")}<br>
+            Сomplaints: {st.session_state["card"].get("complaints", "...")}
             <br>Diagnosis: {predictions["preds"]}<br>
         </div>
         """,
@@ -110,17 +120,18 @@ def check_data(data: bytes) -> None:
         plot_predictions(predictions)
 
 
-def get_complaints() -> tuple[str, str]:
-    choice = st.radio("Do you have any complaints?", ["Yes", "No"])
-    complaint = "..."
-    if choice == "Yes":
-        complaint = st.text_input("Please describe what is bothering you 👨‍⚕️ This data can help us.")
-    return choice, complaint
+def create_medical_card() -> None:
+    st.session_state["card"]["name"] = st.text_input("Enter your full name")
+    st.session_state["card"]["age"] = st.number_input("How old are you?", step=1)
+    st.session_state["card"]["gender"] = st.selectbox("What is your gender?", ["unknown", "man", "woman"])
+    st.session_state["card"]["complaint"] = st.text_input("Please describe what is bothering you?")
 
 
 st.image(f"{GIF_DIR}/circle.gif")
 data = load_audio()
 if data:
-    choice, complaint = get_complaints()
-    if (choice == "Yes" and complaint) or choice == "No":
+    create_card = st.radio("Do you want to fill out a medical card?", ["Default", "Yes", "No"])
+    if create_card == "Yes":
+        create_medical_card()
+    if (create_card == "Yes" and st.session_state["card"]["complaint"]) or create_card == "No":
         check_data(data)
