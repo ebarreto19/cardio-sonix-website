@@ -1,11 +1,14 @@
 """Entry point for the streamlit application"""
 
-from typing import Any
 import streamlit as st
-import requests
-from variables import IMAGES_DIR, GIF_DIR
-from variables import THEME_DIR, CONFIG_DIR
+from pathlib import Path
 
+
+# --- PATH SETTINGS ---
+APP_DIR: Path = Path(__file__).parent if "__file__" in locals() else Path.cwd()
+ASSETS_DIR: Path = APP_DIR / "assets"
+GIF_DIR: Path = ASSETS_DIR / "gif"
+IMAGES_DIR: Path = ASSETS_DIR / "images"
 
 # --- GENERAL SETTINGS ---
 PAGE_TITLE: str = "Home"
@@ -28,24 +31,6 @@ st.write(
     """
 )
 st.image(f"{GIF_DIR}/pulse-home-bar.gif")
-
-
-def theme_change():
-    theme = st.session_state["theme"].lower()
-    if theme != "default":
-        with open(f"{THEME_DIR}/{theme}-theme.toml", "r") as f:
-            theme = f.read()
-        with open(f"{CONFIG_DIR}/config.toml", "w") as f:
-            f.write(theme)
-
-
-st.sidebar.selectbox(
-    "Theme",
-    ["Default", "Dark", "Light"],
-    key="theme",
-    on_change=theme_change,
-)
-st.sidebar.selectbox("Rate service", ["It's important to us", "⭐️⭐️⭐️⭐️⭐️", "⭐️⭐️⭐️⭐️", "⭐️⭐️⭐️", "⭐️⭐️", "⭐️"])
 
 
 col1, col2 = st.columns([0.5, 0.5], gap="large")

@@ -1,16 +1,26 @@
 """Page to make predictions and diagnostics"""
 
 from typing import Union
+from pathlib import Path
 import streamlit as st
 import requests
 import plotly.express as px
-from app.variables import GIF_DIR, IMAGES_DIR
-from app.variables import END_POINT_PREDICT
 
+
+# --- PATH SETTINGS ---
+APP_DIR: Path = Path(__file__).parent.parent if "__file__" in locals() else Path.cwd().parent
+ASSETS_DIR: Path = APP_DIR / "assets"
+GIF_DIR: Path = ASSETS_DIR / "gif"
+IMAGES_DIR: Path = ASSETS_DIR / "images"
 
 # --- GENERAL SETTINGS ---
 PAGE_TITLE: str = "Diagnostics"
 PAGE_ICON: str = "🩺"
+
+# --- Cardio Sonix API ---
+API_HOST: str = "http://127.0.0.1:8000"
+END_POINT_PREDICT: str = API_HOST + "/predict"
+
 
 st.set_page_config(
     page_title=PAGE_TITLE,

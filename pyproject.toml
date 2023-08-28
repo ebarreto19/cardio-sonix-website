@@ -21,7 +21,6 @@ classifiers = [
 ]
 packages = [
     {include = "app"},
-    {include = "app-scripts"},
     {include = "tests"},
 ]
 include = [
@@ -37,9 +36,6 @@ plotly = "^5.16.1"
 [tool.poetry.dev-dependencies]
 python = "^3.10"
 pytest = "^3.0"
-
-[tool.poetry.scripts]
-sonix-run = "app-scripts.server:main"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
