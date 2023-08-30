@@ -4,7 +4,7 @@ from typing import Union
 from pathlib import Path
 import io
 import streamlit as st
-import requests
+from audio_recorder_streamlit import audio_recorder
 import plotly.express as px
 from sonixhub import base_cardionet
 from utils import GIF_DIR, IMAGES_DIR, ROOT_DIR
@@ -21,6 +21,7 @@ st.set_page_config(
     page_icon=PAGE_ICON
 )
 
+
 # Set page session_state
 if not st.session_state.get("card", None):
     st.session_state["card"] = {
@@ -31,7 +32,19 @@ if not st.session_state.get("card", None):
     }
 
 
-def load_audio() -> Union[io.BytesIO, bytes, None]:
+def record_audio() -> io.BytesIO | None:
+    data = audio_recorder(
+        neutral_color="#0b0e35",
+        recording_color="#5b2da1",
+        energy_threshold=0.01,
+        pause_threshold=0.8
+    )
+    if data:
+        st.audio(data)
+        return io.BytesIO(data)
+
+
+def load_audio() -> Union[io.BytesIO, None]:
     data = st.file_uploader(
         label="Upload an audio file of your heartbeat "
               "that is at least 10 seconds long.",
@@ -138,8 +151,17 @@ def create_medical_card() -> None:
     st.session_state["card"]["complaints"] = complaints if complaints else "no complaints"
 
 
+def get_data() -> None | io.BytesIO | bytes:
+    choice = st.sidebar.selectbox(
+        label="Do you want to upload or record an audio file?",
+        options=["Upload 📁", "Record 🎤"]
+    )
+    return load_audio() if choice == "Upload 📁" else record_audio()
+
+
 st.image(f"{GIF_DIR}/circle.gif")
-data = load_audio()
+data = get_data()
+
 if data:
     create_card = st.radio("Do you want to fill out a medical card?", ["Default", "Yes", "No"])
     if create_card == "Yes":
