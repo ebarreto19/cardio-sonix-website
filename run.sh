@@ -1,1 +1,1 @@
-streamlit run app/⭐️_Home.py
+streamlit run ⭐️_Home.py
