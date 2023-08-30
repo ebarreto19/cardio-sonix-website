@@ -106,7 +106,7 @@ def classification_report(predictions: dict) -> None:
 
 def artifact_report() -> None:
     st.error(
-        "Error! Heartbeat sounds were not found in the file you uploaded. "
+        "How noisy! 😮 Heartbeat sounds were not found in the file you uploaded. "
         "Try recording again.", icon="🚨"
     )
     st.markdown(
@@ -151,7 +151,7 @@ def create_medical_card() -> None:
     st.session_state["card"]["complaints"] = complaints if complaints else "no complaints"
 
 
-def get_data() -> None | io.BytesIO | bytes:
+def get_data() -> None | io.BytesIO:
     choice = st.sidebar.selectbox(
         label="Do you want to upload or record an audio file?",
         options=["Upload 📁", "Record 🎤"]
@@ -169,4 +169,3 @@ if data:
         st.button(":blue[Scan] 🩺", key="scan")
     if (create_card == "Yes" and st.session_state.get("scan", None)) or create_card == "No":
         scan_audio(data)
-
