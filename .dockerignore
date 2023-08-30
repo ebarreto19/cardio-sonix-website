@@ -1,0 +1,15 @@
+Dockerfile
+README.md
+main_requirements.txt
+MANIFEST.in
+poetry.lock
+pyproject.toml
+LICENSE.txt
+.gitignore
+run.sh
+setup.py
+tests
+env
+.idea
+.git
+.dockerignore
