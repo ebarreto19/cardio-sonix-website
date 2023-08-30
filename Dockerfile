@@ -11,9 +11,10 @@ EXPOSE 8501
 
 COPY --from=builder /wheels /wheels
 
-RUN pip install --no-cache /wheels/* && mkdir ./.streamlit
+RUN apt-get -y update && apt-get -y upgrade && apt-get install -y --no-install-recommends ffmpeg
 
-COPY ./app .
-COPY .streamlit ./.streamlit
+COPY . .
+
+RUN rm requirements.txt && pip install --no-cache /wheels/*
 
 ENTRYPOINT ["streamlit", "run", "⭐️_Home.py", "--server.port=8501", "--server.address=172.17.0.2"]
