@@ -1,5 +1,6 @@
 altair==5.0.1
 attrs==23.1.0
+audio-recorder-streamlit==0.0.8
 audioread==3.0.0
 blinker==1.6.2
 cachetools==5.3.1
