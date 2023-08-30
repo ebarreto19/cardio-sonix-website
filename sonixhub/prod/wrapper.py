@@ -34,7 +34,7 @@ class BaseWrapper(Module):
         return torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
     def define_model(self):
-        state_dict = torch.load(self.weights_path)
+        state_dict = torch.load(self.weights_path, map_location=self.device)
         self.model.load_state_dict(state_dict)
         self.model.to(self.device)
         self.model.eval()
