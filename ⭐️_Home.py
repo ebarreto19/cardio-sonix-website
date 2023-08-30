@@ -2,19 +2,14 @@
 
 import streamlit as st
 from pathlib import Path
+from utils import GIF_DIR, IMAGES_DIR
 
-
-# --- PATH SETTINGS ---
-APP_DIR: Path = Path(__file__).parent if "__file__" in locals() else Path.cwd()
-ASSETS_DIR: Path = APP_DIR / "assets"
-GIF_DIR: Path = ASSETS_DIR / "gif"
-IMAGES_DIR: Path = ASSETS_DIR / "images"
 
 # --- GENERAL SETTINGS ---
 PAGE_TITLE: str = "Home"
 PAGE_ICON: str = "⭐️"
 
-
+# Set page config
 st.set_page_config(
     page_title=PAGE_TITLE,
     page_icon=PAGE_ICON,

@@ -2,25 +2,18 @@
 
 from typing import Union
 from pathlib import Path
+import io
 import streamlit as st
 import requests
 import plotly.express as px
+from sonixhub import base_cardionet
+from utils import GIF_DIR, IMAGES_DIR, ROOT_DIR
+from utils import AudioConvertor
 
-
-# --- PATH SETTINGS ---
-APP_DIR: Path = Path(__file__).parent.parent if "__file__" in locals() else Path.cwd().parent
-ASSETS_DIR: Path = APP_DIR / "assets"
-GIF_DIR: Path = ASSETS_DIR / "gif"
-IMAGES_DIR: Path = ASSETS_DIR / "images"
 
 # --- GENERAL SETTINGS ---
 PAGE_TITLE: str = "Diagnostics"
 PAGE_ICON: str = "🩺"
-
-# --- Cardio Sonix API ---
-API_HOST: str = "http://127.0.0.1:8000"
-END_POINT_PREDICT: str = API_HOST + "/predict"
-
 
 # Set page config
 st.set_page_config(
@@ -31,32 +24,39 @@ st.set_page_config(
 # Set page session_state
 if not st.session_state.get("card", None):
     st.session_state["card"] = {
-        "name": None,
-        "age": None,
-        "gender": None,
-        "complaint": None
+        "name": "...",
+        "age": "...",
+        "gender": "...",
+        "complaints": "..."
     }
 
 
-def load_audio() -> Union[bytes, None]:
+def load_audio() -> Union[io.BytesIO, bytes, None]:
     data = st.file_uploader(
         label="Upload an audio file of your heartbeat "
-              "that is at least 10 seconds long.")
+              "that is at least 10 seconds long.",
+        type=[
+            ".wav", ".aac", ".ogg",
+            ".mp3", ".aiff", ".flac",
+            ".ape", ".dsd", ".mqa", "wma"
+        ]
+    )
+
     if data:
-        data = data.getvalue()
-        st.audio(data)
-    return data
+        st.audio(data.getvalue())
+        return AudioConvertor(
+            root_dir=ROOT_DIR,
+            valid_extensions=["wav"],
+            convert_to="wav"
+        )(data)
 
 
-def get_predictions(data: bytes) -> dict:
+def get_predictions(data: Union[io.BytesIO, bytes]) -> dict:
     with st.spinner("Please wait... We examine your heart 🫀"):
         try:
-            return requests.post(
-                url=END_POINT_PREDICT,
-                files={f"audio_file": data}
-            ).json()
-        except requests.exceptions.ConnectionError as e:
-            st.error("ConnectionError")
+            return base_cardionet(data)
+        except Exception as e:
+            st.error("We're sorry, something happened to the server ⚡️")
 
 
 def plot_predictions(predictions: dict) -> None:
@@ -77,11 +77,11 @@ def classification_report(predictions: dict) -> None:
     col1.write(
         f"""
         <div class="alert alert-block alert-info" style="font-size:20px; background-color: #0b0e22; font-family:verdana; color: #ffffff; border-radius: 10px; border: 0px #533078 solid">
-            <b>Survey card ⚕️</b>
-            <br>Name: {st.session_state["card"].get("name", "...")}<br>
-            Age: {st.session_state["card"].get("age", "...")}
-            <br>Gender: {st.session_state["card"].get("gender", "...")}<br>
-            Сomplaints: {st.session_state["card"].get("complaints", "...")}
+            <b><font color=#5954b0>Survey card ⚕️</font></b>
+            <br>Name: {st.session_state["card"].get("name")}<br>
+            Age: {st.session_state["card"].get("age")}
+            <br>Gender: {st.session_state["card"].get("gender")}<br>
+            Сomplaints: {st.session_state["card"].get("complaints")}
             <br>Diagnosis: {predictions["preds"]}<br>
         </div>
         """,
@@ -109,10 +109,10 @@ def artifact_report() -> None:
     st.image(f"{IMAGES_DIR}/phone-body-location.png")
 
 
-def check_data(data: bytes) -> None:
+def scan_audio(data: bytes) -> None:
     predictions = get_predictions(data)
     if not predictions:
-        pass
+        return None
     elif predictions["preds"] == "artifact":
         artifact_report()
     else:
@@ -121,10 +121,21 @@ def check_data(data: bytes) -> None:
 
 
 def create_medical_card() -> None:
-    st.session_state["card"]["name"] = st.text_input("Enter your full name")
-    st.session_state["card"]["age"] = st.number_input("How old are you?", step=1)
-    st.session_state["card"]["gender"] = st.selectbox("What is your gender?", ["unknown", "man", "woman"])
-    st.session_state["card"]["complaint"] = st.text_input("Please describe what is bothering you?")
+    # Field name
+    name = st.text_input("Enter your full name")
+    st.session_state["card"]["name"] = name if name else "unknown"
+
+    # Field age
+    age = st.number_input("How old are you?", step=1, min_value=0, max_value=120)
+    st.session_state["card"]["age"] = "unknown" if age == 0 else age
+
+    # Field gender
+    gender = st.selectbox("What is your gender?", ["unknown", "man", "woman"])
+    st.session_state["card"]["gender"] = gender
+
+    # Field complaints
+    complaints = st.text_input("Please describe what is bothering you?")
+    st.session_state["card"]["complaints"] = complaints if complaints else "no complaints"
 
 
 st.image(f"{GIF_DIR}/circle.gif")
@@ -133,5 +144,7 @@ if data:
     create_card = st.radio("Do you want to fill out a medical card?", ["Default", "Yes", "No"])
     if create_card == "Yes":
         create_medical_card()
-    if (create_card == "Yes" and st.session_state["card"]["complaint"]) or create_card == "No":
-        check_data(data)
+        st.button(":blue[Scan] 🩺", key="scan")
+    if (create_card == "Yes" and st.session_state.get("scan", None)) or create_card == "No":
+        scan_audio(data)
+
