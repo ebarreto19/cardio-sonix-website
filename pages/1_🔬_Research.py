@@ -1,4 +1,7 @@
-"""Page about health"""
+"""
+Page from interactive charts and
+data marts on research topics.
+"""
 
 import streamlit as st
 from pathlib import Path
@@ -19,3 +22,6 @@ st.set_page_config(
     page_title=PAGE_TITLE,
     page_icon=PAGE_ICON
 )
+
+
+st.image(f"{GIF_DIR}/research.gif")
