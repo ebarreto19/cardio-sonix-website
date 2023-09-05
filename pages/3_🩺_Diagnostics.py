@@ -6,7 +6,7 @@ import io
 import streamlit as st
 from audio_recorder_streamlit import audio_recorder
 import plotly.express as px
-from sonixhub import base_cardionet
+from sonixhub import get_base_cardionet
 from utils import GIF_DIR, IMAGES_DIR, ROOT_DIR
 from utils import AudioConvertor
 
@@ -67,6 +67,7 @@ def load_audio() -> Union[io.BytesIO, None]:
 def get_predictions(data: Union[io.BytesIO, bytes]) -> dict:
     with st.spinner("Please wait... We examine your heart 🫀"):
         try:
+            base_cardionet = get_base_cardionet()
             return base_cardionet(data)
         except Exception as e:
             st.error("We're sorry, something happened to the server ⚡️")
