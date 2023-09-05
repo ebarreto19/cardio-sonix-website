@@ -1,6 +1,5 @@
 Dockerfile
 README.md
-main_requirements.txt
 MANIFEST.in
 poetry.lock
 pyproject.toml
