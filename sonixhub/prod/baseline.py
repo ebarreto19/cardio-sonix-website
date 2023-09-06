@@ -12,7 +12,7 @@ from ..architect import BaselineRNNModel
 from ..transforms import ETLPipeline
 
 
-@st.cache_resource
+@st.cache_resource(show_spinner="Please wait... Loading models 🚀")
 def get_base_cardionet() -> BaseWrapper:
     model = BaselineRNNModel(
         input_shape=(1, 52),
