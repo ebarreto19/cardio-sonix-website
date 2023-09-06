@@ -1,14 +1,16 @@
 """Page to make predictions and diagnostics"""
 
-from typing import Union
+from typing import Union, AnyStr
 from pathlib import Path
 import io
+
+import librosa
 import streamlit as st
-from audio_recorder_streamlit import audio_recorder
+from audiorecorder import audiorecorder
 import plotly.express as px
 from sonixhub import get_base_cardionet
-from utils import GIF_DIR, IMAGES_DIR, ROOT_DIR
-from utils import AudioConvertor
+from utils import GIF_DIR, IMAGES_DIR
+from utils import AudioRecorder
 
 
 # --- GENERAL SETTINGS ---
@@ -21,8 +23,7 @@ st.set_page_config(
     page_icon=PAGE_ICON
 )
 
-
-# Set page session_state
+# Set page session state
 if not st.session_state.get("card", None):
     st.session_state["card"] = {
         "name": "...",
@@ -32,42 +33,13 @@ if not st.session_state.get("card", None):
     }
 
 
-def record_audio() -> io.BytesIO | None:
-    data = audio_recorder(
-        neutral_color="#0b0e35",
-        recording_color="#5b2da1",
-        energy_threshold=0.01,
-        pause_threshold=0.8
-    )
-    if data:
-        st.audio(data)
-        return io.BytesIO(data)
-
-
-def load_audio() -> Union[io.BytesIO, None]:
-    data = st.file_uploader(
-        label="Upload an audio file of your heartbeat "
-              "that is at least 10 seconds long.",
-        type=[
-            ".wav", ".aac", ".ogg",
-            ".mp3", ".aiff", ".flac",
-            ".ape", ".dsd", ".mqa", "wma"
-        ]
-    )
-
-    if data:
-        st.audio(data.getvalue())
-        return AudioConvertor(
-            root_dir=ROOT_DIR,
-            valid_extensions=["wav"],
-            convert_to="wav"
-        )(data)
+base_cardionet = get_base_cardionet()
+recorder = AudioRecorder()
 
 
 def get_predictions(data: Union[io.BytesIO, bytes]) -> dict:
     with st.spinner("Please wait... We examine your heart 🫀"):
         try:
-            base_cardionet = get_base_cardionet()
             return base_cardionet(data)
         except Exception as e:
             st.error("We're sorry, something happened to the server ⚡️")
@@ -107,8 +79,8 @@ def classification_report(predictions: dict) -> None:
 
 def artifact_report() -> None:
     st.error(
-        "How noisy! 😮 Heartbeat sounds were not found in the file you uploaded. "
-        "Try recording again.", icon="🚨"
+        "How noisy! Heartbeat sounds were not found in the file you uploaded. "
+        "Try recording again.", icon="😮"
     )
     st.markdown(
         """
@@ -152,16 +124,9 @@ def create_medical_card() -> None:
     st.session_state["card"]["complaints"] = complaints if complaints else "no complaints"
 
 
-def get_data() -> None | io.BytesIO:
-    choice = st.sidebar.selectbox(
-        label="Do you want to upload or record an audio file?",
-        options=["Upload 📁", "Record 🎤"]
-    )
-    return load_audio() if choice == "Upload 📁" else record_audio()
-
-
 st.image(f"{GIF_DIR}/circle.gif")
-data = get_data()
+data = recorder.get_audio()
+
 
 if data:
     create_card = st.radio("Do you want to fill out a medical card?", ["Default", "Yes", "No"])
