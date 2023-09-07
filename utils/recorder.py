@@ -11,24 +11,14 @@ from audiorecorder import audiorecorder
 from .converter import AudioConverter
 
 
-class AudioRecorder:
+class AudioRecorder(AudioConverter):
     def __init__(self,
                  duration: Optional[float] = 10.0,
                  valid_extensions: Optional[list[str]] = None,
                  convert_to: Optional[str] = "wav"
                  ):
+        super(AudioRecorder, self).__init__(valid_extensions, convert_to)
         self.duration = duration
-
-        if not valid_extensions:
-            valid_extensions = [
-                "wav", "mp3", "ogg",
-                "flac", "m4a"
-            ]
-
-        self.converter = AudioConverter(
-            valid_extensions=valid_extensions,
-            convert_to=convert_to
-        )
 
     def __check_duration(self, data: AnyStr | bytes) -> io.BytesIO | None:
         audio, sr = librosa.load(io.BytesIO(data), sr=None)
@@ -62,7 +52,7 @@ class AudioRecorder:
         )
 
         if data:
-            data = self.converter(data)
+            data = self.__call__(data)
             return self.__check_duration(data)
 
     def get_audio(self) -> None | io.BytesIO:

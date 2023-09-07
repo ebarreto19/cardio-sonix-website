@@ -15,14 +15,20 @@ from .variables import ROOT_DIR
 
 class AudioConverter:
     def __init__(self,
-                 valid_extensions: list[str],
+                 valid_extensions: Optional[list[str, ...]] = None,
                  convert_to: Optional[str] = "wav",
-                 ac: Optional[int] = 1
+                 ac: Optional[int] = 1,
+                 root_dir: Optional[str] = None
                  ):
+        if not valid_extensions:
+            valid_extensions = [
+                "wav", "mp3", "ogg",
+                "flac", "m4a"
+            ]
         self.valid_extensions = valid_extensions
         self.convert_to = convert_to
         self.ac = ac
-        self.root_dir = ROOT_DIR
+        self.root_dir = root_dir if root_dir else ROOT_DIR
 
     def convert(self, path: str | Path) -> AnyStr:
         return Popen(
@@ -44,7 +50,6 @@ class AudioConverter:
 
     def __call__(self, source: UploadedFile) -> bytes | AnyStr:
         data = source.getvalue()
-
         if self.check_extension(source.name):
             in_path = self.define_location(
                 source.file_id, source.name.split(".")[-1]
@@ -60,5 +65,4 @@ class AudioConverter:
             finally:
                 if os.path.exists(in_path):
                     os.remove(in_path)
-
         return data
