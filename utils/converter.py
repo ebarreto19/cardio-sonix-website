@@ -1,82 +1,64 @@
-"""AudioConvertor it's classs for converting audio files to only supported formats"""
+"""AudioConverter it's classs for converting audio files to only supported formats"""
 
-__all__ = ["AudioConvertor"]
+__all__ = ["AudioConverter"]
 
-from typing import Union
+from typing import Union, AnyStr, Optional
 import os
 import io
-import time
 from pathlib import Path
-import soundfile as sf
+from subprocess import Popen, PIPE
+import streamlit as st
 from streamlit.runtime.uploaded_file_manager import UploadedFile
 import ffmpeg
+from .variables import ROOT_DIR
 
 
-class AudioConvertor:
+class AudioConverter:
     def __init__(self,
-                 root_dir: Union[str, Path],
                  valid_extensions: list[str],
-                 convert_to: str,
-                 ac: int = 1
+                 convert_to: Optional[str] = "wav",
+                 ac: Optional[int] = 1
                  ):
-        self.check_sanity(root_dir)
-        self.root_dir = root_dir
         self.valid_extensions = valid_extensions
         self.convert_to = convert_to
         self.ac = ac
+        self.root_dir = ROOT_DIR
 
-    @staticmethod
-    def check_sanity(root_dir: Union[str, Path]) -> None:
-        if not os.path.isdir(root_dir):
-            raise ValueError(
-                f"Expected argument root_dir should be dirpath, but got {root_dir}"
-            )
+    def convert(self, path: str | Path) -> AnyStr:
+        return Popen(
+            ["ffmpeg", "-hide_banner", "-i", f"{path}", "-f", f"{self.convert_to}", "-"],
+            stdout=PIPE
+        ).stdout.read()
 
-    def define_location(self, filename: str) -> str:
-        return os.path.join(self.root_dir, f"{time.time()}-{filename}")
-
-    @staticmethod
-    def load(path: Union[str, Path]) -> sf.SoundFile:
-        return sf.SoundFile(path, "r")
-
-    @staticmethod
-    def write(path: Union[str, Path], data: io.BytesIO) -> None:
-        with open(path, "wb") as f:
-            f.write(data)
-
-    def convert(self, in_path: Union[str, Path], out_path: Union[str, Path]) -> None:
-        (
-            ffmpeg
-            .input(in_path)
-            .output(
-                out_path,
-                format=self.convert_to,
-                ac=self.ac
-            )
-            .run()
-        )
-
-    def check_format(self, filename: str) -> Union[None, str]:
+    def check_extension(self, filename: str | Path) -> Union[None, str]:
         if filename.split(".")[-1] not in self.valid_extensions:
             return filename
 
-    @staticmethod
-    def clear(paths: list[str, ...]) -> None:
-        for path in paths:
-            if not os.path.isfile(path):
-                raise ValueError(
-                    f"Expected argument paths should contain file paths, but got {paths}"
-                )
-            else:
-                os.remove(path)
+    def define_location(self, file_id: str, extension: str) -> str:
+        return os.path.join(self.root_dir, f"{file_id}.{extension}")
 
-    def __call__(self, source: UploadedFile) -> io.BytesIO:
-        data = io.BytesIO(source.getbuffer())
-        if self.check_format(source.name):
-            in_path = self.define_location(source.name)
-            self.write(in_path, source.getbuffer())
-            out_path = self.define_location(source.name)
-            self.convert(in_path, out_path)
-            data = self.load(out_path)
-            self.clear([in_path, out_path])
+    @staticmethod
+    def write(path: Union[str, Path], data: io.BytesIO | bytes) -> None:
+        with open(path, "wb") as f:
+            f.write(data)
+
+    def __call__(self, source: UploadedFile) -> bytes | AnyStr:
+        data = source.getvalue()
+
+        if self.check_extension(source.name):
+            in_path = self.define_location(
+                source.file_id, source.name.split(".")[-1]
+            )
+
+            try:
+                self.write(in_path, source.getbuffer())
+                data = self.convert(in_path)
+            except Exception as e:
+                st.error("We're sorry, something happened to the server ⚡️")
+            else:
+                return data
+            finally:
+                if os.path.exists(in_path):
+                    os.remove(in_path)
+
         return data
