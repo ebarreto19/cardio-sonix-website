@@ -31,11 +31,11 @@ st.image(f"{GIF_DIR}/pulse-home-bar.gif")
 col1, col2 = st.columns([0.5, 0.5], gap="large")
 
 with col1:
-    st.header(":blue[Cardiovascular diseases]")
+    st.header(":blue[Cardiovascular diseases]", divider=True)
     st.image(f"{IMAGES_DIR}/heart-attack.png")
     st.write(
         """
-        <div class="alert alert-block alert-info" style="font-size:20px; background-color: #0b0e22; font-family:verdana; color: #ffffff; border-radius: 10px; border: 0px #533078 solid">
+        <div class="alert alert-block alert-info" style="font-size:20px; background-color: #0b0e22; font-family:verdana; color: #353cbd; border-radius: 10px; border: 0px #533078 solid">
             According to the World Health Organisation, 
             cardiovascular diseases (CVDs) are the number one cause of death globally: 
             more people die annually from CVDs than from any other cause. 
@@ -49,11 +49,11 @@ with col1:
 
 
 with col2:
-    st.header(":blue[Motivation]")
+    st.header(":blue[Motivation]", divider="blue")
     st.image(f"{GIF_DIR}/slime.gif")
     st.write(
         """
-        <div class="alert alert-block alert-info" style="font-size:20px; background-color: #0b0e22; font-family:verdana; color: #ffffff; border-radius: 10px; border: 0px #533078 solid">
+        <div class="alert alert-block alert-info" style="font-size:20px; background-color: #0b0e22; font-family:verdana; color: #353cbd; border-radius: 10px; border: 0px #533078 solid">
             Any method which can help to detect signs of heart disease 
             could therefore have a significant impact on world health. 
             This challenge is to produce methods to do exactly that. 
@@ -66,11 +66,11 @@ with col2:
     )
 
 
-st.header(":blue[Medicine and AI]")
+st.header(":blue[Medicine and AI]", divider="blue")
 st.image(f"{IMAGES_DIR}/medicine-ai.jpeg")
 st.write(
     """
-    <div class="alert alert-block alert-info" style="font-size:20px; background-color: #0b0e22; font-family:verdana; color: #ffffff; border-radius: 10px; border: 0px #533078 solid">
+    <div class="alert alert-block alert-info" style="font-size:20px; background-color: #0b0e22; font-family:verdana; color: #353cbd; border-radius: 10px; border: 0px #533078 solid">
         The problem is of particular interest to machine learning researchers 
         as it involves classification of audio sample data, 
         where distinguishing between classes of interest is non-trivial. 

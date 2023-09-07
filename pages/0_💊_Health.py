@@ -29,7 +29,7 @@ st.image(f"{IMAGES_DIR}/pulse-black.jpg")
 col1, col2 = st.columns([0.5, 0.5], gap="large")
 
 with col1:
-    st.subheader("Lifespan")
+    st.subheader("Lifespan", divider="grey")
     st.image(f"{IMAGES_DIR}/life-cycle.jpg")
     st.write(
         """
@@ -44,7 +44,7 @@ with col1:
 
 
 with col2:
-    st.subheader("Heart and life path")
+    st.subheader("Heart and life path", divider="grey")
     st.image(f"{IMAGES_DIR}/dark-heart.png")
     st.write(
         """
@@ -57,7 +57,7 @@ with col2:
 
 
 # Page body
-st.header("How to keep a life streak?")
+st.header("How to keep a life streak?", divider="grey")
 st.write(
     """
     Now that you understand the importance of the contribution of the cardiovascular system to your life expectancy, 
@@ -72,7 +72,7 @@ st.image(f"{GIF_DIR}/life-streak.gif")
 col1, col2 = st.columns([0.5, 0.5], gap="large")
 
 with col1:
-    st.subheader("Alcohol 🥃")
+    st.subheader("Alcohol 🥃", divider="grey")
     st.image(f"{IMAGES_DIR}/alcohol.jpg")
     st.write(
         """
@@ -99,7 +99,7 @@ with col1:
 
 
 with col2:
-    st.subheader("Smoking 🚬")
+    st.subheader("Smoking 🚬", divider="grey")
     st.image(f"{GIF_DIR}/cigarette-smoke.gif")
     st.write(
         """
@@ -125,7 +125,7 @@ with col2:
 col1, col2 = st.columns([0.5, 0.5], gap="large")
 
 with col1:
-    st.subheader("Food 🥗")
+    st.subheader("Food 🥗", divider="grey")
     st.image(f"{IMAGES_DIR}/food.jpg")
     st.write(
         """
@@ -166,7 +166,7 @@ with col1:
 
 
 with col2:
-    st.subheader("Sleep 💤")
+    st.subheader("Sleep 💤", divider="grey")
     st.image(f"{GIF_DIR}/sleep.gif")
     st.write(
         """
