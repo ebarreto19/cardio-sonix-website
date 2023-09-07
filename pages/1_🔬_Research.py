@@ -25,3 +25,4 @@ st.set_page_config(
 
 
 st.image(f"{GIF_DIR}/research.gif")
+st.write("## :green[In progress ⚡️]")
