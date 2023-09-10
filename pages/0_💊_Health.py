@@ -26,6 +26,7 @@ st.set_page_config(
 
 # Page head
 st.image(f"{IMAGES_DIR}/pulse-black.jpg")
+st.write("<br><br>", unsafe_allow_html=True)
 col1, col2 = st.columns([0.5, 0.5], gap="large")
 
 with col1:
@@ -57,6 +58,7 @@ with col2:
 
 
 # Page body
+st.write("<br><br>", unsafe_allow_html=True)
 st.header("How to keep a life streak?", divider="grey")
 st.write(
     """
@@ -76,18 +78,18 @@ with col1:
     st.image(f"{IMAGES_DIR}/alcohol.jpg")
     st.write(
         """
-        ##### Strongest cellular poison 🧪
+        ##### Strongest cellular poison
         Being the strongest cellular poison, alcohol damages the cells of the heart muscle 
         and increases blood pressure (even with a single dose - for several days), 
         poisoning the nervous and cardiovascular systems. 
         A sharp increase in blood pressure can lead to a hypertensive crisis, 
         myocardial infarction and stroke. 
         
-        ##### The most harmful alcohol 🍺
+        ##### The most harmful alcohol
         The most harmful alcohol can be called beer, 
         the cobalt contained in the foam increases the load on the heart muscle.
         
-        ##### Bovine heart 🫀
+        ##### Bovine heart
         With frequent use of alcohol, 
         an excess amount of fat accumulates in the heart muscle, 
         it is reborn, becomes flabby. 
@@ -129,15 +131,15 @@ with col1:
     st.image(f"{IMAGES_DIR}/food.jpg")
     st.write(
         """
-        ##### Healthy fruits 🥝
+        ##### Healthy fruits
         Almost all fresh fruits are good for the heart. 
         Therefore, in the summer you need to eat as much as possible: 
-        * apples 🍏
-        * pears 🍐
+        * apples 
+        * pears 
         * plums 
-        * all kinds of berries 🍒
+        * all kinds of berries 
         
-        ##### Dark-colored berries 🫐
+        ##### Dark-colored berries
         By the way, all dark-colored berries (blueberries, blackberries, currants) not only replenish 
         the body's vitamin supply and nourish the heart muscle, 
         but also increase the level of hemoglobin in the blood.
@@ -145,20 +147,20 @@ with col1:
         ##### Calcium
         The heart system needs not only plant foods, but also calcium. 
         It can be obtained from: 
-        * milk 🥛
-        * cheese 🧀
+        * milk 
+        * cheese 
         * yogurt
         
         ##### Dairy-free with calcium
         But if you can’t eat dairy products, 
         the lack of calcium is compensated by the consumption:
-        * fish (salmon and sardines) 🍣
+        * fish (salmon and sardines) 
         * seeds (sesame and chia)
-        * nuts 🥜
+        * nuts 
         * figs
         
         ##### Harmful to the heart: 
-        * smoked and raw smoked sausages 🫘
+        * smoked and raw smoked sausages 
         * caviar
         * all products containing margarine
         """
