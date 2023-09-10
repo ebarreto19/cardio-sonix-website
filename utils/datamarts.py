@@ -35,7 +35,7 @@ class DataMart:
         border: 0px #533078 solid">{text}</div>
         """
 
-    #@st.cache_data(show_spinner=False)
+    @st.cache_data(show_spinner=False)
     def __post_init__(self) -> None:
         if not self.dataframe:
             self.dataframe = pd.read_csv(self.filepath)
