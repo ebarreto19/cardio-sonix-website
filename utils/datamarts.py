@@ -36,9 +36,12 @@ class DataMart:
         """
 
     @st.cache_data(show_spinner=False)
+    def load_data(self) -> pd.DataFrame:
+        return pd.read_csv(self.filepath)
+
     def __post_init__(self) -> None:
         if not self.dataframe:
-            self.dataframe = pd.read_csv(self.filepath)
+            self.dataframe = self.load_data()
         if self.unsafe_allow_html:
             description = self.insert_link(self.description)
             self.description = self.insert_html(description)
