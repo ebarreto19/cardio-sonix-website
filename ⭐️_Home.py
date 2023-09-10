@@ -19,12 +19,16 @@ st.set_page_config(
 st.title(":red[_Dr. Cardio Sonix_] :heart:")
 st.write(
     """
-    **Dr. Cardio Sonix is your cardiologist 
-    available to everyone at any time! 
-    Just record the sounds of your heartbeat 
-    as indicated in the instructions and send us 🫶🏻** 
-    """
+    <div class="alert alert-block alert-info" style="font-size:20px; background-color: #661321; font-family:verdana; color: #e63c3c; border-radius: 10px; border: 0px #533078 solid">
+        Dr. Cardio Sonix is your cardiologist 
+        available to everyone at any time! 
+        Just record the sounds of your heartbeat 
+        as indicated in the instructions and send us 🫶🏻
+    </div>
+    """,
+    unsafe_allow_html=True
 )
+st.write("<br><br>", unsafe_allow_html=True)
 st.image(f"{GIF_DIR}/pulse-home-bar.gif")
 
 
