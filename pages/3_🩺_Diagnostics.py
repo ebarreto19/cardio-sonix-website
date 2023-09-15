@@ -107,21 +107,23 @@ def scan_audio(data: bytes) -> None:
 
 
 def create_medical_card() -> None:
+    extra_data = st.form("extra_data")
     # Field name
-    name = st.text_input("Enter your full name")
+    name = extra_data.text_input("Enter your full name")
     st.session_state["card"]["name"] = name if name else "unknown"
 
     # Field age
-    age = st.number_input("How old are you?", step=1, min_value=0, max_value=120)
+    age = extra_data.number_input("How old are you?", step=1, min_value=0, max_value=120)
     st.session_state["card"]["age"] = "unknown" if age == 0 else age
 
     # Field gender
-    gender = st.selectbox("What is your gender?", ["unknown", "man", "woman"])
+    gender = extra_data.selectbox("What is your gender?", ["unknown", "man", "woman"])
     st.session_state["card"]["gender"] = gender
 
     # Field complaints
-    complaints = st.text_input("Please describe what is bothering you?")
+    complaints = extra_data.text_input("Please describe what is bothering you?")
     st.session_state["card"]["complaints"] = complaints if complaints else "no complaints"
+    st.session_state["scan"] = extra_data.form_submit_button(":blue[Scan] 🩺")
 
 
 st.image(f"{GIF_DIR}/circle.gif")
@@ -132,6 +134,5 @@ if data:
     create_card = st.radio("Do you want to fill out a medical card?", ["Default", "Yes", "No"])
     if create_card == "Yes":
         create_medical_card()
-        st.button(":blue[Scan] 🩺", key="scan")
     if (create_card == "Yes" and st.session_state.get("scan", None)) or create_card == "No":
         scan_audio(data)
