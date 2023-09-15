@@ -43,7 +43,7 @@ class DataMart:
         border: 0px #533078 solid">{self.description}</div>
         """
 
-    #@st.cache_data(show_spinner=False)
+    @st.cache_data(show_spinner=False)
     def load_data(self) -> pd.DataFrame:
         df = pd.read_csv(self.filepath)
         return df.drop(df.columns[df.columns.str.contains("unnamed", case=False)], axis=1, inplace=False)
