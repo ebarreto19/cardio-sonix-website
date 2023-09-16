@@ -22,14 +22,14 @@ st.set_page_config(
 
 
 # Step 1
-st.header("Prepare your phone - :blue[Step 1]")
+st.header("Prepare your phone - :blue[Step 1]", divider="blue")
 st.write("Open any audio recording software like a voice recorder on your phone.")
 st.image(f"{GIF_DIR}/audio-recording.gif")
+st.write("<br><br>", unsafe_allow_html=True)
 
 
 # Step 2
-st.header("Lie down - :blue[Step 2]")
-
+st.header("Lie down - :blue[Step 2]", divider="blue")
 st.markdown(
     """
     - calm down  
@@ -38,20 +38,17 @@ st.markdown(
     - lie down as in the picture 👇
     """
 )
-
 st.image(f"{IMAGES_DIR}/lie-down.png")
+st.write("<br><br>", unsafe_allow_html=True)
 
 
 # Step 3
-st.header("Record your heartbeat - :blue[Step 3]")
-
+st.header("Record your heartbeat - :blue[Step 3]", divider="blue")
 st.write(
     "Now take the phone in one hand and firmly attach it "
     "to the area indicated in the picture by the yellow rectangle 👇"
 )
-
 st.image(f"{IMAGES_DIR}/phone-body-location.png")
-
 st.markdown(
     """  
     ### Should I just lie down?
@@ -71,10 +68,11 @@ st.markdown(
     - make sure you put the phone on the side with the microphone
     """
 )
+st.write("<br><br>", unsafe_allow_html=True)
 
 
 # Step 4
-st.header("Upload audio - :blue[Step 4]")
+st.header("Upload audio - :blue[Step 4]", divider="blue")
 st.write(
     "Upload the audio recording of the heartbeat obtained in the previous step. "
     "An audio recording of the heartbeat can be obtained in any way, including special devices. "
