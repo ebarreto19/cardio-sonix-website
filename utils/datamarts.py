@@ -6,46 +6,61 @@ from typing import Optional, Iterable
 from pathlib import Path
 from typing import Literal
 import os
-import time
-from dataclasses import dataclass
 
 import plotly.express as px
 import pandas as pd
+from pandas.io.formats.style import Styler
+from pandas.core.generic import NDFrame
+
 import streamlit as st
 from streamlit.delta_generator import DeltaGenerator
 from sklearn.preprocessing import LabelEncoder
 from .variables import DATA_DIR
 
 
-@dataclass
 class DataMart:
-    filepath: str | Path
-    color: Optional[str] = "#353cbd"
-    background_color: Optional[str] = "#0b0e22"
-    title: Optional[str] = "Some data mart"
-    link: Optional[str] = None
-    dataframe: pd.DataFrame = None
-    description: Optional[str] = None
-    unsafe_allow_html: Optional[bool] = True
-    column_config: Optional[dict] = None
-    hide_index: Optional[bool] = True
+    def __init__(self,
+                 filepath: str | Path,
+                 color: Optional[str] = "#353cbd",
+                 background_color: Optional[str] = "#0b0e22",
+                 title: Optional[str] = "Some data mart",
+                 link: Optional[str] = None,
+                 dataframe: pd.DataFrame = None,
+                 description: Optional[str] = None,
+                 unsafe_allow_html: Optional[bool] = True,
+                 column_config: Optional[dict] = None,
+                 ):
+        self.dataframe = self.load_data(filepath) if not dataframe else dataframe
+        self.background_color = background_color
+        self.color = color
+        self.title = title
+        self.link = link
+        self.column_config = column_config
+        self.description = self.page_content(description) if unsafe_allow_html else description
+        self.unsafe_allow_html = unsafe_allow_html
 
-    def insert_link(self) -> None:
-        self.description = f"""{self.description}<a href="{self.link}">Link to data source.</a>"""
+    def page_content(self, text: str) -> str:
+        if self.link:
+            text = self.insert_link(text)
+        return self.insert_html(text)
 
-    def insert_html(self) -> None:
-        self.description = f"""
+    def insert_link(self, text: str) -> str:
+        return f"""{text}<a href="{self.link}">Link to data source.</a>"""
+
+    def insert_html(self, text: str) -> str:
+        return f"""
         <div class="alert alert-block alert-info" style="font-size:20px; 
         background-color: {self.background_color}; 
         font-family:verdana; 
         color: {self.color}; 
         border-radius: 10px; 
-        border: 0px #533078 solid">{self.description}</div>
+        border: 0px #533078 solid">{text}</div>
         """
 
+    @staticmethod
     @st.cache_data(show_spinner=False)
-    def load_data(self) -> pd.DataFrame:
-        df = pd.read_csv(self.filepath)
+    def load_data(filepath: str) -> pd.DataFrame:
+        df = pd.read_csv(filepath)
         return df.drop(df.columns[df.columns.str.contains("unnamed", case=False)], axis=1, inplace=False)
 
     @staticmethod
@@ -59,22 +74,16 @@ class DataMart:
              if dtype in dtypes]
         ]
 
-    def get_corr(self) -> pd.DataFrame:
+    def get_corr(self, cmap: Optional[str] = "plasma", round_by: Optional[int] = 2) -> Styler:
         dataframe = self.dataframe.copy()
         for column in self.select(dtypes=["object"]).columns.tolist():
             dataframe[column] = LabelEncoder().fit(
                 dataframe[column]
             ).transform(dataframe[column])
-        return dataframe.corr().round(2)
+        return dataframe.corr().round(round_by).style.background_gradient(cmap=cmap)
 
-    def __post_init__(self) -> None:
-        if not self.dataframe:
-            self.dataframe = self.load_data()
-        if self.unsafe_allow_html:
-            if self.link:
-                self.insert_link()
-            if self.description:
-                self.insert_html()
+    def describe(self) -> NDFrame:
+        return self.dataframe.describe()
 
 
 class DataWidgets:
@@ -106,14 +115,6 @@ class DataWidgets:
         )
 
     def table_widget(self, datamart: DataMart) -> None:
-        content = {
-            "Data": datamart.dataframe,
-            "Stats": datamart.dataframe.describe(),
-            "Heatmap": datamart.get_corr().style.background_gradient(cmap="plasma"),
-            "Categorical features": datamart.select(dtypes=["object"]),
-            "Quantitative features": datamart.select(dtypes=["int64", "float64"])
-        }
-
         st.header(f":blue[{datamart.title}]", divider="blue")
         st.write(datamart.description, unsafe_allow_html=datamart.unsafe_allow_html)
         st.write("<br><br>", unsafe_allow_html=True)
@@ -121,13 +122,25 @@ class DataWidgets:
         if self.__display_mode:
             st.subheader(f":blue[{self.__display_mode}]", divider="blue")
             st.dataframe(
-                content[self.__display_mode],
+                self.find_table(datamart),
                 column_config=datamart.column_config,
                 use_container_width=True,
                 hide_index=True
                 if self.__display_mode not in ["Stats", "Heatmap"]
                 else False
             )
+
+    def find_table(self, datamart: DataMart) -> pd.DataFrame | NDFrame | Styler:
+        if self.__display_mode == "Stats":
+            return datamart.describe()
+        elif self.__display_mode == "Data":
+            return datamart.dataframe
+        elif self.__display_mode == "Heatmap":
+            return datamart.get_corr()
+        elif self.__display_mode == "Categorical features":
+            return datamart.select(dtypes=["object"])
+        elif self.__display_mode == "Quantitative features":
+            return datamart.select(dtypes=["int64", "float64"])
 
     def charts_widget(self, datamart: DataMart) -> None:
         graph = self.graphs[self.__graph_type]
