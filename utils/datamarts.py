@@ -11,8 +11,6 @@ import plotly.express as px
 import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
-from pandas.io.formats.style import Styler
-from pandas.core.generic import NDFrame
 
 import streamlit as st
 from streamlit.delta_generator import DeltaGenerator
@@ -78,7 +76,7 @@ class DataMart:
         ]
 
     @st.cache_data
-    def get_corr(_self, round_by: Optional[int] = 2) -> Styler:
+    def get_corr(_self, round_by: Optional[int] = 2) -> pd.DataFrame:
         dataframe = _self.dataframe.copy()
         for column in _self.select(dtypes=["object"]).columns.tolist():
             dataframe[column] = LabelEncoder().fit(
