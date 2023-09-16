@@ -8,6 +8,8 @@ from typing import Literal
 import os
 
 import plotly.express as px
+import seaborn as sns
+import matplotlib.pyplot as plt
 import pandas as pd
 from pandas.io.formats.style import Styler
 from pandas.core.generic import NDFrame
@@ -39,10 +41,11 @@ class DataMart:
         self.description = self.page_content(description) if unsafe_allow_html else description
         self.unsafe_allow_html = unsafe_allow_html
 
-    def page_content(self, text: str) -> str:
-        if self.link:
-            text = self.insert_link(text)
-        return self.insert_html(text)
+    @st.cache_data
+    def page_content(_self, text: str) -> str:
+        if _self.link:
+            text = _self.insert_link(text)
+        return _self.insert_html(text)
 
     def insert_link(self, text: str) -> str:
         return f"""{text}<a href="{self.link}">Link to data source.</a>"""
@@ -74,16 +77,14 @@ class DataMart:
              if dtype in dtypes]
         ]
 
-    def get_corr(self, cmap: Optional[str] = "plasma", round_by: Optional[int] = 2) -> Styler:
-        dataframe = self.dataframe.copy()
-        for column in self.select(dtypes=["object"]).columns.tolist():
+    @st.cache_data
+    def get_corr(_self, round_by: Optional[int] = 2) -> Styler:
+        dataframe = _self.dataframe.copy()
+        for column in _self.select(dtypes=["object"]).columns.tolist():
             dataframe[column] = LabelEncoder().fit(
                 dataframe[column]
             ).transform(dataframe[column])
-        return dataframe.corr().round(round_by).style.background_gradient(cmap=cmap)
-
-    def describe(self) -> NDFrame:
-        return self.dataframe.describe()
+        return dataframe.corr().round(round_by)
 
 
 class DataWidgets:
@@ -104,8 +105,7 @@ class DataWidgets:
         st.sidebar.subheader(":gray[Dashboard]", divider="gray")
         st.sidebar.radio(
             "Select display mode:",
-            ["Data", "Stats", "Heatmap",
-             "Categorical features", "Quantitative features"],
+            ["Data", "Heatmap", "Categorical features", "Quantitative features"],
             key="display_mode"
         )
         st.sidebar.selectbox(
@@ -121,19 +121,27 @@ class DataWidgets:
 
         if self.__display_mode:
             st.subheader(f":blue[{self.__display_mode}]", divider="blue")
-            st.dataframe(
-                self.find_table(datamart),
-                column_config=datamart.column_config,
-                use_container_width=True,
-                hide_index=True
-                if self.__display_mode not in ["Stats", "Heatmap"]
-                else False
-            )
+            table = self.find_table(datamart)
 
-    def find_table(self, datamart: DataMart) -> pd.DataFrame | NDFrame | Styler:
-        if self.__display_mode == "Stats":
-            return datamart.describe()
-        elif self.__display_mode == "Data":
+            if self.__display_mode == "Heatmap":
+                with plt.style.context("dark_background"):
+                    fig, axes, = plt.subplots()
+                sns.heatmap(
+                    table, annot=True, vmin=-1.0,
+                    vmax=1.0, cmap="crest", annot_kws={"fontsize": 5.0},
+                    linewidth=.1, linecolor="black"
+                )
+                st.pyplot(fig)
+            else:
+                st.dataframe(
+                    table,
+                    column_config=datamart.column_config,
+                    use_container_width=True,
+                    hide_index=True
+                )
+
+    def find_table(self, datamart: DataMart) -> pd.DataFrame | Styler:
+        if self.__display_mode == "Data":
             return datamart.dataframe
         elif self.__display_mode == "Heatmap":
             return datamart.get_corr()
