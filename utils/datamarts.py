@@ -75,10 +75,9 @@ class DataMart:
              if dtype in dtypes]
         ]
 
-    @st.cache_data
-    def get_corr(_self, round_by: Optional[int] = 2) -> pd.DataFrame:
-        dataframe = _self.dataframe.copy()
-        for column in _self.select(dtypes=["object"]).columns.tolist():
+    def get_corr(self, round_by: Optional[int] = 2) -> pd.DataFrame:
+        dataframe = self.dataframe.copy()
+        for column in self.select(dtypes=["object"]).columns.tolist():
             dataframe[column] = LabelEncoder().fit(
                 dataframe[column]
             ).transform(dataframe[column])
