@@ -137,7 +137,7 @@ class DataWidgets:
                     hide_index=True
                 )
 
-    def find_table(self, datamart: DataMart) -> pd.DataFrame | Styler:
+    def find_table(self, datamart: DataMart) -> pd.DataFrame:
         if self.__display_mode == "Data":
             return datamart.dataframe
         elif self.__display_mode == "Heatmap":
