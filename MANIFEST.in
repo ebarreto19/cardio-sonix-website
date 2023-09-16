@@ -1,5 +1,6 @@
-recursive-include app/assets *
+recursive-include assets *
 recursive-include .streamlit *
+recursive-include pages *
 
 include requirements.txt
 include README.md
