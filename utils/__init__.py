@@ -3,3 +3,4 @@
 from .variables import *
 from .recorder import *
 from .datamarts import DataMart, DataWidgets
+from .extra_form import ExtraForm
