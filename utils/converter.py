@@ -10,25 +10,26 @@ from subprocess import Popen, PIPE
 import streamlit as st
 from streamlit.runtime.uploaded_file_manager import UploadedFile
 import ffmpeg
-from .variables import ROOT_DIR
 
 
 class AudioConverter:
+    __common_extensions = [
+        "wav", "mp3",
+        "ogg", "flac"
+    ]
+
     def __init__(self,
-                 valid_extensions: Optional[list[str, ...]] = None,
+                 common_extensions: Optional[list[str, ...]] = None,
                  convert_to: Optional[str] = "wav",
                  ac: Optional[int] = 1,
                  root_dir: Optional[str] = None
                  ):
-        if not valid_extensions:
-            valid_extensions = [
-                "wav", "mp3", "ogg",
-                "flac", "m4a"
-            ]
-        self.valid_extensions = valid_extensions
+        if not isinstance(common_extensions, list):
+            common_extensions = self.__common_extensions
+        self.common_extensions = common_extensions
         self.convert_to = convert_to
         self.ac = ac
-        self.root_dir = root_dir if root_dir else ROOT_DIR
+        self.root_dir = root_dir
 
     def convert(self, path: str | Path) -> AnyStr:
         return Popen(
@@ -37,7 +38,7 @@ class AudioConverter:
         ).stdout.read()
 
     def check_extension(self, filename: str | Path) -> Union[None, str]:
-        if filename.split(".")[-1] not in self.valid_extensions:
+        if filename.split(".")[-1] not in self.common_extensions:
             return filename
 
     def define_location(self, file_id: str, extension: str) -> str:
@@ -50,11 +51,10 @@ class AudioConverter:
 
     def __call__(self, source: UploadedFile) -> bytes | AnyStr:
         data = source.getvalue()
-        if self.check_extension(source.name):
-            in_path = self.define_location(
-                source.file_id, source.name.split(".")[-1]
-            )
-
+        if not self.check_extension(source.name):
+            return data
+        else:
+            in_path = self.define_location(source.file_id, source.name.split(".")[-1])
             try:
                 self.write(in_path, source.getbuffer())
                 data = self.convert(in_path)
@@ -65,4 +65,3 @@ class AudioConverter:
             finally:
                 if os.path.exists(in_path):
                     os.remove(in_path)
-        return data
