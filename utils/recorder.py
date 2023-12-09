@@ -7,57 +7,71 @@ import io
 from pathlib import Path
 import librosa
 import streamlit as st
-from audiorecorder import audiorecorder
+from st_audiorec import st_audiorec
 from .converter import AudioConverter
+from .variables import ROOT_DIR
 
 
 class AudioRecorder(AudioConverter):
+    __default_extensions = [
+        ".wav", ".aac",
+        ".ogg", ".mp3",
+        ".aiff", ".flac",
+        ".ape", ".dsd",
+        ".mqa", ".wma",
+        ".m4a"
+    ]
+
     def __init__(self,
-                 duration: Optional[float] = 10.0,
+                 duration: Optional[int] = 10,
                  valid_extensions: Optional[list[str]] = None,
-                 convert_to: Optional[str] = "wav"
+                 convert_to: Optional[str] = "wav",
+                 sample_rate: Optional[int] = 22050,
+                 mono: Optional[bool] = True
                  ):
-        super(AudioRecorder, self).__init__(valid_extensions, convert_to)
+        super().__init__(valid_extensions, convert_to, (1 if mono else 2), ROOT_DIR)
         self.duration = duration
+        self.sample_rate = sample_rate
+        self.mono = mono
 
-    def __check_duration(self, data: AnyStr | bytes) -> io.BytesIO | None:
-        audio, sr = librosa.load(io.BytesIO(data), sr=None)
-        duration = librosa.get_duration(y=audio, sr=sr)
+    def chunks(self):
+        pass
 
+    def __check_duration(self, data: AnyStr | bytes) -> io.BytesIO:
+        audio, sr = librosa.load(io.BytesIO(data), sr=self.sample_rate, mono=self.mono)
+        duration = librosa.get_duration(y=audio, sr=self.sample_rate)
         if duration >= self.duration:
-            st.audio(data)
             return io.BytesIO(data)
         else:
             st.error(
                 f"Oops! Length of the heartbeat audio recording "
-                f"must be at least 10 seconds, but the length is {duration} seconds. "
+                f"must be at least {self.duration} seconds, "
+                f"but the length is {round(duration, 2)} seconds. "
                 f"Please try again.",
                 icon="😮"
             )
 
-    def _record_audio(self) -> AnyStr | None:
-        data = audiorecorder()
-        if data:
-            return self.__check_duration(data.export().read())
+    def _record_audio(self) -> AnyStr:
+        data = st_audiorec()
+        if data is not None:
+            return self.__check_duration(data)
 
     def _load_audio(self) -> Union[bytes, None]:
         data = st.file_uploader(
-            label="Upload an audio file of your heartbeat "
-                  "that is at least 10 seconds long.",
-            type=[
-                ".wav", ".aac", ".ogg",
-                ".mp3", ".aiff", ".flac",
-                ".ape", ".dsd", ".mqa", ".wma"
-            ]
+            label=f"Upload an audio file of your heartbeat "
+                  f"that is at least {self.duration} seconds long.",
+            type=self.__default_extensions
         )
-
         if data:
+            st.audio(data)
             data = self.__call__(data)
             return self.__check_duration(data)
 
-    def get_audio(self) -> None | io.BytesIO:
+    def get_audio(self) -> io.BytesIO:
         choice = st.sidebar.selectbox(
             label="Do you want to upload or record an audio file?",
             options=["Upload 📁", "Record 🎤"]
         )
-        return self._load_audio() if choice == "Upload 📁" else self._record_audio()
+        if choice == "Upload 📁":
+            return self._load_audio()
+        return self._record_audio()
