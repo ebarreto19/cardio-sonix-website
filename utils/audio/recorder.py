@@ -9,7 +9,7 @@ import librosa
 import streamlit as st
 from st_audiorec import st_audiorec
 from .converter import AudioConverter
-from .variables import ROOT_DIR
+from utils.variables import ROOT_DIR
 
 
 class AudioRecorder(AudioConverter):
