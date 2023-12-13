@@ -15,7 +15,7 @@ import pandas as pd
 import streamlit as st
 from streamlit.delta_generator import DeltaGenerator
 from sklearn.preprocessing import LabelEncoder
-from .variables import DATA_DIR
+from utils.variables import DATA_DIR
 
 
 class DataMart:
