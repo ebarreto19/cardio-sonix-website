@@ -2,7 +2,7 @@
 
 __all__ = ["ExtraForm"]
 
-from typing import Optional
+from typing import Optional, Any
 import streamlit as st
 
 
@@ -65,8 +65,13 @@ class MultiLabelEncoder:
 
 
 class ExtraForm(MultiLabelEncoder):
-    def __init__(self, name: Optional[str] = "extra_form", sidebar: Optional[bool] = False):
+    def __init__(self,
+                 name: Optional[str] = "extra_form",
+                 sidebar: Optional[bool] = False,
+                 output_format: Optional[Any] = None
+                 ):
         super().__init__()
+        self.output_format = output_format
         self.__form = st.form(name) if not sidebar else st.sidebar.form(name)
 
     def is_smoking(self) -> int:
@@ -161,25 +166,34 @@ class ExtraForm(MultiLabelEncoder):
         return self.encode(gen_health)
 
     def get_physical_health(self) -> int:
-        return self.__form.number_input(
+        physical_health = self.__form.number_input(
             "For how many days during the past 30 days was your physical health not good?",
             min_value=0, max_value=30, step=1, value=0
         )
+        if self.output_format:
+            return self.output_format(physical_health)
+        return physical_health
 
     def get_mental_health(self) -> int:
-        return self.__form.number_input(
+        mental_health = self.__form.number_input(
             "For how many days during the past 30 days was your mental health not good?",
             min_value=0, max_value=30, step=1, value=0
         )
+        if self.output_format:
+            return self.output_format(mental_health)
+        return mental_health
 
     def get_sleep_time(self) -> float:
-        return self.__form.number_input(
+        sleep_time = self.__form.number_input(
             "How many hours on average do you sleep?",
             min_value=0.0, max_value=18.0, step=1.0, value=7.0
         )
+        if self.output_format:
+            return self.output_format(sleep_time)
+        return sleep_time
 
     def get_bmi(self) -> float:
-        return self.__form.number_input(
+        bmi = self.__form.number_input(
             "Enter your BMI (Body mass index)",
             min_value=5.0, max_value=251.1, step=1.0, value=25.0,
             help="Body mass index is a value that allows you to assess the degree of correspondence "
@@ -188,13 +202,16 @@ class ExtraForm(MultiLabelEncoder):
                  "Important when determining indications for the need for treatment. "
                  "Body mass index is calculated using the formula: weight (kg) / height (m)2.",
         )
+        if self.output_format:
+            return self.output_format(bmi)
+        return bmi
 
     def quantity(self) -> dict[str, int | float]:
         return {
             "BMI": self.get_bmi(),
-            "SleepTime": self.get_sleep_time(),
             "PhysicalHealth": self.get_physical_health(),
-            "MentalHealth": self.get_mental_health()
+            "MentalHealth": self.get_mental_health(),
+            "SleepTime": self.get_sleep_time()
         }
 
     def categorical(self) -> dict[str, int]:
@@ -218,7 +235,7 @@ class ExtraForm(MultiLabelEncoder):
     def submit_button(self) -> bool:
         return self.__form.form_submit_button(":blue[Scan] 🩺")
 
-    def get_extra(self):
+    def get_all_form(self):
         categorical = self.categorical()
         quantity = self.quantity()
         if self.submit_button:
