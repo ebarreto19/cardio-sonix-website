@@ -1,6 +1,6 @@
 """This package contains some useful utilities and constants for streamlit pages"""
 
 from .variables import *
-from .recorder import *
-from .datamarts import DataMart, DataWidgets
-from .extra_form import ExtraForm
+from .audio import *
+from .widgets import DataMart, DataWidgets
+from .forms import ExtraForm
