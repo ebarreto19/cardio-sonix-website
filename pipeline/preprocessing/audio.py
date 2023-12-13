@@ -14,7 +14,7 @@ import numpy as np
 import librosa
 import torch
 import torchaudio.transforms as T
-from torch.nn import Module
+from torch.nn import Module, Sequential
 
 
 class SafeLoader(Module):
@@ -112,8 +112,7 @@ class MFCCExtractor(Module):
         mfcc = self.mfcc_extractor(waveform).squeeze().T
         if self.average_by:
             mfcc = mfcc.mean(self.average_dict[self.average_by])
-            mfcc = mfcc.unsqueeze(0)
-        return mfcc
+        return mfcc.unsqueeze(0)
 
 
 class AudioPreprocessor(Module):
@@ -130,11 +129,18 @@ class AudioPreprocessor(Module):
                  dtype: Optional[np.dtype] = np.float32
                  ):
         super().__init__()
-        self.dtype = dtype
-        self.preprocessor = nn.Sequential(
-            SafeLoader(sample_rate=sample_rate, duration=duration, mono=mono),
-            MFCCExtractor(sample_rate, n_fft, win_length, hop_length, n_mels, n_mfcc, average_by)
+        self._dtype = dtype
+        self.__preprocessor = Sequential(
+            SafeLoader(
+                sample_rate=sample_rate,
+                duration=duration, mono=mono
+            ),
+            MFCCExtractor(
+                sample_rate, n_fft,
+                win_length, hop_length,
+                n_mels, n_mfcc, average_by
+            )
         )
 
     def forward(self, source: Union[str, bytes, PathLike]) -> np.ndarray:
-        return self.preprocessor(source).numpy().astype(self.dtype)
+        return self.__preprocessor(source).numpy().astype(self._dtype)
