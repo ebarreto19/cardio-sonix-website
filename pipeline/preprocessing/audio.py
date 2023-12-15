@@ -29,7 +29,20 @@ class SafeLoader(Module):
         self.mono = mono
         self.length = self.duration * self.sample_rate
 
-    def forward(self, source: Union[str, bytes, PathLike]) -> torch.Tensor:
+    def _load(self, source: Union[str, bytes, PathLike, tuple[np.ndarray, int]]) -> np.ndarray:
+        if isinstance(source, tuple):
+            return librosa.resample(
+                source[0],
+                orig_sr=source[1],
+                target_sr=self.sample_rate
+            )
+        return librosa.load(
+            source,
+            sr=self.sample_rate,
+            mono=self.mono
+        )[0]
+
+    def forward(self, source: Union[str, bytes, PathLike, tuple[np.ndarray, int]]) -> torch.Tensor:
         """
         Performs loading of an audio sample, data preprocessing, augmentation and feature extraction step by step.
         Finally returns a set of features cast to a tensor type.
@@ -37,7 +50,7 @@ class SafeLoader(Module):
         Args:
             source: (str) path to the audio sample file
         """
-        waveform, _ = librosa.load(source, sr=self.sample_rate, mono=self.mono)
+        waveform = self._load(source)
         waveform = librosa.util.fix_length(waveform, size=self.length)
         return torch.tensor(np.expand_dims(waveform, axis=0), dtype=torch.float32)
 
