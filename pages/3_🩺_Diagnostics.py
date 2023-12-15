@@ -7,10 +7,11 @@ import io
 import librosa
 import numpy as np
 import streamlit as st
+from soundlit import AudioWidget
 import plotly.express as px
 
 from utils import GIF_DIR, IMAGES_DIR
-from utils import AudioRecorder, ExtraForm
+from utils import ExtraForm
 from pipeline import (
     TabularPreprocessor,
     AudioPreprocessor,
@@ -35,7 +36,7 @@ uno_session = PredictionSession("cardionetv2uno.onnx", classes=classes)
 multimodal_session = PredictionSession("cardionetv2multi.onnx", classes=classes)
 
 # Data loading and preprocessing
-recorder = AudioRecorder(duration=20)
+audio_widget = AudioWidget(min_duration=20, max_duration=60)
 tabular_preprocessor = TabularPreprocessor()
 audio_preprocessor = AudioPreprocessor(duration=20, n_mels=128, n_mfcc=128)
 
@@ -97,7 +98,7 @@ def artifact_report() -> None:
 
 def load_audio() -> np.ndarray:
     st.image(f"{GIF_DIR}/circle.gif")
-    if (audio := recorder.get_audio()) is not None:
+    if (audio := audio_widget.get_audio()) is not None:
         return audio_preprocessor(audio)
 
 
