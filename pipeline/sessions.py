@@ -22,7 +22,7 @@ class PredictionSession:
     @staticmethod
     @st.cache_resource(show_spinner="Please wait for the models to be loaded...")
     def _make_session(filename: str) -> InferenceSession:
-        model = hf_hub_download("Cardionix/cardionet-v2", filename) # st.secrets["repo_id"]
+        model = hf_hub_download("Cardionix/cardionet-v2", filename)
         return InferenceSession(model)
 
     def __get_input_names(self) -> list[str, ...]:
