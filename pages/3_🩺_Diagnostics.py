@@ -5,48 +5,46 @@ from pathlib import Path
 import io
 
 import librosa
+import numpy as np
 import streamlit as st
-from audiorecorder import audiorecorder
+from soundlit import AudioWidget
 import plotly.express as px
-from sonixhub import get_base_cardionet
+
 from utils import GIF_DIR, IMAGES_DIR
-from utils import AudioRecorder
+from utils import ExtraForm
+from pipeline import (
+    TabularPreprocessor,
+    AudioPreprocessor,
+    PredictionSession
+)
 
 
-# --- GENERAL SETTINGS ---
+# --- PAGE CONFIG ---
 PAGE_TITLE: str = "Diagnostics"
 PAGE_ICON: str = "🩺"
 
-# Set page config
 st.set_page_config(
     page_title=PAGE_TITLE,
     page_icon=PAGE_ICON
 )
 
-# Set page session state
-if not st.session_state.get("card", None):
-    st.session_state["card"] = {
-        "name": "...",
-        "age": "...",
-        "gender": "...",
-        "complaints": "..."
-    }
+
+# --- CONSTANTS ---
+# Models
+classes = ["artifact", "healthy", "abnormal"]
+uno_session = PredictionSession("cardionetv2uno.onnx", classes=classes)
+multimodal_session = PredictionSession("cardionetv2multi.onnx", classes=classes)
+
+# Data loading and preprocessing
+audio_widget = AudioWidget(min_duration=20, max_duration=60)
+tabular_preprocessor = TabularPreprocessor()
+audio_preprocessor = AudioPreprocessor(duration=20, n_mels=128, n_mfcc=128)
 
 
-base_cardionet = get_base_cardionet()
-recorder = AudioRecorder()
-
-
-def get_predictions(data: Union[io.BytesIO, bytes]) -> dict:
-    with st.spinner("Please wait... We examine your heart 🫀"):
-        try:
-            return base_cardionet(data)
-        except Exception as e:
-            st.error("We're sorry, something happened to the server ⚡️")
-
-
-def plot_predictions(predictions: dict) -> None:
-    fig = px.bar(x=predictions["classes"], y=predictions["probs"])
+# --- FUNCTIONS ---
+def plot_predictions(predict: dict[str, float]) -> None:
+    classes, probs = list(predict.keys()), list(predict.values())
+    fig = px.bar(x=classes, y=probs)
     fig.update_layout(
         xaxis_title="Classes",
         yaxis_title="Probabilities"
@@ -57,28 +55,31 @@ def plot_predictions(predictions: dict) -> None:
     )
 
 
-def classification_report(predictions: dict) -> None:
-    col1, col2 = st.columns([0.5, 0.5], gap="large")
+def get_indicates(predicted: str) -> str:
+    if predicted.lower() in ["healthy", "normal"]:
+        return "deviations from the norm, which can be either symptoms of serious heart disease or a temporary phenomenon"
+    return "the absence of deviations from the norm in the cardiovascular system"
 
+
+def classification_report(predicted: str, prob: float) -> None:
+    col1, col2 = st.columns([0.5, 0.5], gap="large")
+    indicates = get_indicates(predicted)
+    prob = str(np.round(prob, 2))
     col1.write(
         f"""
         <div class="alert alert-block alert-info" style="font-size:20px; background-color: #0b0e22; font-family:verdana; color: #ffffff; border-radius: 10px; border: 0px #533078 solid">
-            <b><font color=#5954b0>Survey card ⚕️</font></b>
-            <br>Name: {st.session_state["card"].get("name")}<br>
-            Age: {st.session_state["card"].get("age")}
-            <br>Gender: {st.session_state["card"].get("gender")}<br>
-            Сomplaints: {st.session_state["card"].get("complaints")}
-            <br>Diagnosis: {predictions["preds"]}<br>
+            Currently, a recording of your heartbeat has a probability of <b>{prob}</b> indicates {indicates}.
+            <br>In any case, for a more reliable result, you need to take measurements three times a day for at least 3-5 days.<br>
+            It is important to remember that we do not have a medical license and cannot give recommendations or make diagnoses.
         </div>
         """,
         unsafe_allow_html=True
     )
-
-    col2.image(f"{GIF_DIR}/status-{predictions['preds']}.gif")
+    col2.image(f"{GIF_DIR}/status-{predicted}.gif")
 
 
 def artifact_report() -> None:
-    st.error(
+    st.warning(
         "How noisy! Heartbeat sounds were not found in the file you uploaded. "
         "Try recording again.", icon="😮"
     )
@@ -95,44 +96,35 @@ def artifact_report() -> None:
     st.image(f"{IMAGES_DIR}/phone-body-location.png")
 
 
-def scan_audio(data: bytes) -> None:
-    predictions = get_predictions(data)
-    if not predictions:
-        return None
-    elif predictions["preds"] == "artifact":
-        artifact_report()
-    else:
-        classification_report(predictions)
-        plot_predictions(predictions)
+def load_audio() -> np.ndarray:
+    st.image(f"{GIF_DIR}/circle.gif")
+    if (audio := audio_widget.get_audio()) is not None:
+        return audio_preprocessor(audio)
 
 
-def create_medical_card() -> None:
-    extra_data = st.form("extra_data")
-    # Field name
-    name = extra_data.text_input("Enter your full name")
-    st.session_state["card"]["name"] = name if name else "unknown"
+def predict(audio: np.ndarray) -> dict[str, float]:
+    is_multimodal = st.radio(
+        label="Do you want to fill out a medical card?",
+        options=["Default", "Yes", "No"],
+        help="More information about your health can significantly improve your prognosis."
+    )
 
-    # Field age
-    age = extra_data.number_input("How old are you?", step=1, min_value=0, max_value=120)
-    st.session_state["card"]["age"] = "unknown" if age == 0 else age
-
-    # Field gender
-    gender = extra_data.selectbox("What is your gender?", ["unknown", "man", "woman"])
-    st.session_state["card"]["gender"] = gender
-
-    # Field complaints
-    complaints = extra_data.text_input("Please describe what is bothering you?")
-    st.session_state["card"]["complaints"] = complaints if complaints else "no complaints"
-    st.session_state["scan"] = extra_data.form_submit_button(":blue[Scan] 🩺")
+    if is_multimodal.lower() == "no":
+        with st.spinner("Please wait... We examine your heart 🫀"):
+            return uno_session(audio)
+    if is_multimodal.lower() == "yes":
+        form = ExtraForm()
+        if (tabular := form.get_all_form()) is not None:
+            tabular = tabular_preprocessor(**tabular)
+            with st.spinner("Please wait... We examine your heart 🫀"):
+                return multimodal_session(audio, tabular)
 
 
-st.image(f"{GIF_DIR}/circle.gif")
-data = recorder.get_audio()
-
-
-if data:
-    create_card = st.radio("Do you want to fill out a medical card?", ["Default", "Yes", "No"])
-    if create_card == "Yes":
-        create_medical_card()
-    if (create_card == "Yes" and st.session_state.get("scan", None)) or create_card == "No":
-        scan_audio(data)
+if (audio := load_audio()) is not None:
+    if (outs := predict(audio)) is not None:
+        predict, outputs = outs
+        if predict == "artifact":
+            artifact_report()
+        else:
+            classification_report(predict, outputs[predict])
+            plot_predictions(outputs)
