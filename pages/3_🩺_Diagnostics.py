@@ -68,7 +68,7 @@ def classification_report(predicted: str, prob: float) -> None:
     col1.write(
         f"""
         <div class="alert alert-block alert-info" style="font-size:20px; background-color: #0b0e22; font-family:verdana; color: #ffffff; border-radius: 10px; border: 0px #533078 solid">
-            Currently, a recording of your heartbeat has a probability of {prob} indicates {indicates}.
+            Currently, a recording of your heartbeat has a probability of <b>{prob}</b> indicates {indicates}.
             <br>In any case, for a more reliable result, you need to take measurements three times a day for at least 3-5 days.<br>
             It is important to remember that we do not have a medical license and cannot give recommendations or make diagnoses.
         </div>
