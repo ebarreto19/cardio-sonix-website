@@ -14,6 +14,13 @@ for the benefit of humanity.**
 pip install -r requirements.txt
 ```
 
+### Make sure that you have the C++ ffmpeg library installed on your computer. 
+<br>Its absence will lead to an [error](https://stackoverflow.com/questions/62470863/ffmpeg-command-not-found-but-pip-list-shows-ffmpeg).<br> 
+If you are not sure that you have it, then run the command below (only for Unix)
+```shell
+sudo apt install ffmpeg
+```
+
 ## 2. Launch
 ```shell
 streamlit run ⭐️_Home.py
